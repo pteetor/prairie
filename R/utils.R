@@ -99,5 +99,5 @@ simpleHtmlTable = function(dfrm, class=NULL, id=NULL) {
     )
   }
   
-  tags$table(lapply(1:nrow(dfrm.f), wrapRow), class=class, id=id)
+  tags$table(lapply(seq_len(nrow(dfrm.f)), wrapRow), class=class, id=id)
 }

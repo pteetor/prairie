@@ -84,7 +84,7 @@ response <- function(status=200, content_type='text/plain', body='') {
       headers = list(
         `Content-Type` = content_type
       ),
-      body = body
+      body = as.character(body)
     ),
     class = 'response'
   )
@@ -127,35 +127,37 @@ as.response <- function(x, ...) {
   UseMethod('as.response')
 }
 
-#' @param directory A character string specifying the system folder of the file
-#'   \code{x}.
-#' @param collapse A character string specifying how to collapse the lines read
-#'   from \code{x}.
 #' @rdname as.response
 #' @export
-as.response.character <- function(x, directory = 'views', collapse = '\n', ...) {
-  if (length(x) != 1) {
-    stop('expecting argument `x` to be a single character string',
-         call. = FALSE)
-  }
+as.response.response = function(x, ...) x
 
-  path <- file.path(directory, x)
+#' @rdname as.response
+#' @export
+as.response.condition = function(x, ...) {
 
-  if (!file.exists(path)) {
-    stop('file "', path, '" does not exist', call. = FALSE)
-  }
+  # We use 'message' conditions to signal user errors,
+  # and 'error' conditions to signal server errors
+  status = ifelse(is(x, "message"), 400, 500)
 
-  if (!is_readable(path)) {
-    stop('do not have read permissions for "', path, '"', call. = FALSE)
-  }
+  response(status=status,
+           content_type="text/plain",
+           body=conditionMessage(x) )
+}
 
-  res <- response()
-  res[['Content-Type']] <- mime::guess_type(path)
+#' @param collapse A character string specifying how to collapse the lines read
+#'   from connection \code{x}.
+#' @rdname as.response
+#' @export
+as.response.connection <- function(x, content_type = 'text/plain', collapse = '\n', ...) {
+  contents <- paste(readLines(con=x, warn = FALSE), collapse = collapse)
+  response(content_type=content_type,
+           body=contents)
+}
 
-  contents <- paste(readLines(path, warn = FALSE), collapse = collapse)
-  body(res) <- contents
-
-  res
+#' @rdname as.response
+#' @export
+as.response.shiny.tag = function(x, status=200) {
+  response(status=status, content_type="text/html", body=as.character(x))
 }
 
 #' @param format A character string, determining the form of the HTTP response.
@@ -221,13 +223,15 @@ print.response <- function(x, ...) {
 #' @keywords internal
 #' @export
 #' @rdname print.response
-format.response <- function(x, ...) {
+format.response <- function(x, maxchar=80, ...) {
 
   str_sc <- paste(x[['status_code']], reason_phrase(x[['status_code']]))
   str_h <- paste0(names(x[['headers']]), ': ', ifelse(is.date(x[['headers']]),
                                                       http_date(x[['headers']]),
                                                       x[['headers']]))
   str_b <- if (x[['body']] == '') '""' else x[['body']]
+  if (nchar(str_b) > maxchar)
+    str_b = paste(substr(str_b, 1, maxchar), "... <truncated>")
 
   width <- max(nchar(str_sc), nchar(str_h))
   frmt <- paste0('%', width, 's')

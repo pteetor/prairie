@@ -2,7 +2,10 @@
 % Please edit documentation in R/response.R
 \name{as.response}
 \alias{as.response}
-\alias{as.response.character}
+\alias{as.response.response}
+\alias{as.response.condition}
+\alias{as.response.connection}
+\alias{as.response.shiny.tag}
 \alias{as.response.data.frame}
 \alias{as.response.matrix}
 \alias{is.response}
@@ -10,8 +13,14 @@
 \usage{
 as.response(x, ...)
 
-\method{as.response}{character}(x, directory = "views", collapse = "\\n",
-  ...)
+\method{as.response}{response}(x, ...)
+
+\method{as.response}{condition}(x, ...)
+
+\method{as.response}{connection}(x, content_type = "text/plain",
+  collapse = "\\n", ...)
+
+\method{as.response}{shiny.tag}(x, status = 200)
 
 \method{as.response}{data.frame}(x, format = "json", ...)
 
@@ -22,11 +31,8 @@ is.response(x)
 \arguments{
 \item{x}{Any \R object.}
 
-\item{directory}{A character string specifying the system folder of the file
-\code{x}.}
-
 \item{collapse}{A character string specifying how to collapse the lines read
-from \code{x}.}
+from connection \code{x}.}
 
 \item{format}{A character string, determining the form of the HTTP response.
 Can be one of \code{"csv"}, \code{"html"}, \code{"json"}, or \code{"text"}.}

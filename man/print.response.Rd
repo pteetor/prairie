@@ -7,7 +7,7 @@
 \usage{
 \method{print}{response}(x, ...)
 
-\method{format}{response}(x, ...)
+\method{format}{response}(x, maxchar = 80, ...)
 }
 \arguments{
 \item{x}{Object of class \code{response}.}

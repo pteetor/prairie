@@ -131,8 +131,21 @@ run <- function(app, host, port) {
         }
 
         req$ROUTE_PATH <- matching_route[['path']]
-        res <- matching_route[['handler']](req)
 
+        # Invoke the route handler, letting it signal a condition if necessary
+        res <- tryCatch(matching_route[['handler']](req),
+                        condition = function(e) e )
+
+        # Whatever we get, convert it to a response object.
+        # Any failure in the conversion is a bug in *our* code.
+        res <- tryCatch(as.response(res),
+                        condition = function(e) {
+                          response(status = 500,
+                                   body = 'Internal error, cannot create response object' )
+                        }
+                      )
+
+        ## POSSIBLY OBSOLETE:
         if (!is.response(res)) {
           return(
             list(
