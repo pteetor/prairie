@@ -91,13 +91,11 @@ conjunction <- function(x, coordinator = 'and') {
 #' @import htmltools
 #'
 simpleHtmlTable = function(dfrm, class=NULL, id=NULL) {
-  dfrm.f = format(dfrm)
-  
   wrapRow = function(i) {
     tags$tr(
-      lapply(dfrm.f[i,], tags$td)
+      lapply(dfrm[i,], tags$td)
     )
   }
   
-  tags$table(lapply(seq_len(nrow(dfrm.f)), wrapRow), class=class, id=id)
+  tags$table(lapply(seq_len(nrow(dfrm)), wrapRow), class=class, id=id)
 }

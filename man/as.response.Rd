@@ -6,6 +6,7 @@
 \alias{as.response.condition}
 \alias{as.response.connection}
 \alias{as.response.shiny.tag}
+\alias{as.response.shiny.tag.list}
 \alias{as.response.data.frame}
 \alias{as.response.matrix}
 \alias{is.response}
@@ -21,6 +22,8 @@ as.response(x, ...)
   collapse = "\\n", ...)
 
 \method{as.response}{shiny.tag}(x, status = 200)
+
+\method{as.response}{shiny.tag.list}(x, ...)
 
 \method{as.response}{data.frame}(x, format = "json", ...)
 

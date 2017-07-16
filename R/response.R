@@ -157,8 +157,15 @@ as.response.connection <- function(x, content_type = 'text/plain', collapse = '\
 #' @rdname as.response
 #' @export
 as.response.shiny.tag = function(x, status=200) {
-  response(status=status, content_type="text/html", body=as.character(x))
+  rendered = htmltools::renderTags(x)
+  body = paste0("<head>", as.character(rendered$head), "</head>",
+                "<body>", as.character(rendered$html), "</body>" )
+  response(status=status, content_type="text/html", body=body)
 }
+
+#' @rdname as.response
+#' @export
+as.response.shiny.tag.list = function(x, ...) as.response.shiny.tag(x, ...)
 
 #' @param format A character string, determining the form of the HTTP response.
 #'   Can be one of \code{"csv"}, \code{"html"}, \code{"json"}, or \code{"text"}.
