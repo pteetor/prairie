@@ -7,6 +7,7 @@
 #' @param status (numeric) HTTP status code, e.g. 200 for OK, 404 for Not Found
 #' @param content_type (character) MIME content type, e.g., "text/plain", "text/html".
 #' @param body (character) Body of the response
+#' @param headers (list) Additonal pairs for HTTP header (optional)
 #'
 #' @section Components:
 #'
@@ -77,13 +78,12 @@
 #' mkup('get', '302')
 #' mkup('get', '203')
 #'
-response <- function(status=200, content_type='text/plain', body='') {
+response <- function(status=200, content_type='text/plain', body='', headers=list()) {
   structure(
     list(
       status_code = status,
-      headers = list(
-        `Content-Type` = content_type
-      ),
+      headers = append(list(`Content-Type` = content_type),
+                       headers ),
       body = as.character(body)
     ),
     class = 'response'
@@ -158,8 +158,9 @@ as.response.connection <- function(x, content_type = 'text/plain', collapse = '\
 #' @export
 as.response.shiny.tag = function(x, status=200) {
   rendered = htmltools::renderTags(x)
-  body = paste0("<head>", as.character(rendered$head), "</head>",
-                "<body>", as.character(rendered$html), "</body>" )
+  body = paste("<head>", as.character(rendered$head), "</head>",
+                "<body>", as.character(rendered$html), "</body>",
+                sep="\n" )
   response(status=status, content_type="text/html", body=body)
 }
 
